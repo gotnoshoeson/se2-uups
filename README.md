@@ -1,8 +1,8 @@
-# 🏗 Scaffold-ETH 2 - Transparent Proxy Pattern
+# 🏗 Scaffold-ETH 2 - UUPS Pattern
 
-#### TL;DR - Transparent Upgradeable Proxy
+#### TL;DR - Universal Upgradeable Proxy Standard
 
-Why do this? Why should you care? Short answer is upgradeable smart contracts. "But smart contracts are supposed to be immutable, isn't that the whole point?" Have no fear, all of the proxy patterns that have been published by OpenZeppelin keep the immutable storage in tact and allow an admin (owner) to add additional functionality without changing the contract address that the users interact with. For example, you have a smart contract that has a function that increments a value (++1), but later you want the contract to also have a decrement function (--1). An upgradeable contract pattern will allow you to do that and keep the smart contract's address and storage data in tact. So depending on the smart contract use, this could be an acceptable set of terms for the users. When you're done upgrading, transfer the ownership to The Zero Address to provably prevent any upgrades in the future.
+Why do this? Why should you care? Short answer is upgradeable smart contracts. "But smart contracts are supposed to be immutable, isn't that the whole point?" Have no fear, all of the proxy patterns that have been published by OpenZeppelin keep the immutable storage in tact and allow an admin (owner) to add additional functionality without changing the contract address that the users interact with. For example, you have a smart contract that has a function that increments a value (++1), but later you want the contract to also have a decrement function (--1). An upgradeable contract pattern will allow you to do that and keep the smart contract's address and storage data in tact. So depending on the smart contract use, this could be an acceptable set of terms for the users. When you're done upgrading, there is a mechanism to provably prevent future upgrades.
 
 [Check out the Scaffold-Eth 2 docs and quickstart](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/README.md)
 
@@ -14,13 +14,13 @@ With that out of the way, onto the build!
 
 So why do this?
 
-Contract upgradeability. Also, If you want to be able to deploy multiple instances of a smart contract and you want to reduce the cost of deployment.
+Contract upgradeability. Also, If you want to be able to deploy multiple instances of a smart contract and you want to reduce the cost of deployment. One main difference from the Transparent Upgradeable Proxy Standard is that proxy deployments are cheaper because the code to upgrade a proxy resides in the implementation contract, which is only deployed once. Also the Transparent Upgradeable Proxy Standard does NOT have a way to turn off upgradeability.
 
 We will start out with two smart contracts in this build:
   -1: YourContract.sol
-  -2: ProxyFactory.sol
+  -2: Factory.sol
 
-YourContract will be used as the implementation contract and ProxyFactory will be used as an on-chain way to deploy proxies of the implementation contract. All calls to the proxy contracts will be forwarded [delegatecall](https://solidity-by-example.org/delegatecall/) to the implementation contract that contains the contract logic. The storage will be maintained in the proxy contract.
+YourContract will be used as the implementation contract and Factory will be used as an on-chain way to deploy proxies of the implementation contract. All calls to the proxy contracts will be forwarded [delegatecall](https://solidity-by-example.org/delegatecall/) to the implementation contract that contains the contract logic. The storage will be maintained in the proxy contract.
 
 1. If you followed the steps from the quick start, you can interact with YourContract and ProxyFactory on the typical Scaffold-Eth Debug page. Go ahead and choose the Factory contract and make a transaction with the 'createProxy' method.
 
@@ -42,7 +42,7 @@ To log in with a new burner wallet, simply open a new tab or window (you'll like
 
 ## The contract upgrade
 
-Upgradeable smart contracts may sound sacrilegious to you, afterall, smart contracts are supposed to be immutable and that's where a large part of their security is derived right?  There may be situations where you want to expand the functionality of your smart contract after you've already deployed it. Maybe you want to have a window of time to do bug bounties in a live environment and have on opportunity to fix the bugs without having to start over with new smart contracts. In this case, the goal is to 'upgrade' the contract by adding new functionality but also retaining the data immutability; and this is exactly what all of the OpenZeppelin Proxy patterns are designed to do. For a deeper dive, check out this article from OpenZeppelin --> [Transparent Proxy Pattern](https://blog.openzeppelin.com/proxy-patterns?utm_source=zos&utm_medium=blog&utm_campaign=transparent-proxy-pattern)
+Upgradeable smart contracts may sound sacrilegious to you, afterall, smart contracts are supposed to be immutable and that's where a large part of their security is derived right?  There may be situations where you want to expand the functionality of your smart contract after you've already deployed it. Maybe you want to have a window of time to debug without having to start over with new smart contracts. In this case, the goal is to 'upgrade' the contract by adding new functionality but also retaining the data immutability; and this is exactly what all of the OpenZeppelin Proxy patterns are designed to do. For a deeper dive, check out this article from OpenZeppelin --> [Proxy Patterns: How they work, lower level](https://blog.openzeppelin.com/proxy-patterns?utm_source=zos&utm_medium=blog&utm_campaign=transparent-proxy-pattern)
 
 Every time that we created a new proxy, we did so with the Factory contract and not with hardhat like the other contracts, YourContract and Factory. For this reason we don't currently have the ABI to interact with any of the TransparentUpgradeableProxy functions or any of the functions that it inherits.
 
@@ -131,13 +131,10 @@ We're now using the ABI for YourContract2 but we haven't upgraded the contract y
 
 7. When you're ready to terminate the upgradeable functionality of your smart contract, set the owner as '0x0000000000000000000000000000000000000000' (the Zero Address). Now everyone will know that your smart contract is no longer upgradeable.
 
-Now that you've learned the Transparent Upgradeable Proxy pattern, I have some bad news for you. This pattern is NOT the current recommended pattern for upgradeable proxy functionality. UUPS is now the pattern recommended by OpenZeppelin for this type of functionality. "This standard uses the same delegate call pattern, but places upgrade logic in the implementation contract instead of the proxy itself." [Read more about UUPS](https://blog.openzeppelin.com/blog/the-state-of-smart-contract-upgrades#universal-upgradeable-proxies).
 
-If you're looking for a proxy pattern that upgrades all the proxy contracts with one upgrade check out the [Upgradeable Beacon Proxy pattern](https://blog.openzeppelin.com/blog/the-state-of-smart-contract-upgrades#beacons). A similar build will be coming soon for the Beacon Proxy pattern.
+If you're looking for a proxy pattern that upgrades all the proxy contracts with one transaction, check out the [Upgradeable Beacon Proxy pattern](https://blog.openzeppelin.com/blog/the-state-of-smart-contract-upgrades#beacons). A similar build will be coming soon for the Beacon Proxy pattern.
 
-Want to use the latest recommended proxy pattern? Stay tuned for a UUPS build coming soon...
-
-Want to upgrade all proxies with one upgrade call? Stay tuned for an Upgradeable Beacon Proxy build coming soon...
+Want finer grain control? Stay tuned for a Diamond Standard build coming soon...
 
 Thanks for journeying with me. Keep Buidling!
 
