@@ -5,24 +5,22 @@ pragma solidity >=0.8.0 <0.9.0;
 import "hardhat/console.sol";
 
 // Use openzeppelin to inherit battle-tested implementations (ERC20, ERC721, etc)
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
  * A smart contract that allows changing a state variable of the contract and tracking the changes
  * It also allows the owner to withdraw the Ether in the contract
  * @author BuidlGuidl
  */
-contract YourContract2 {
+contract YourContract2 is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 	// State Variables
-	address public immutable owner;
-	string public greeting = "Building Unstoppable Apps!!!";
-	bool public premium = false;
-	uint256 public totalCounter = 0;
+	// Do not set values for variables here, set them in the initialize function below
+	string public greeting;
+	bool public premium;
+	uint256 public totalCounter;
 	mapping(address => uint) public userGreetingCounter;
-
-	string public farewell = "Go get 'em buidler!!!";
-	uint256 public totalCounterFarewell = 0;
-	mapping(address => uint) public userFarewellCounter;
 
 	// Events: a way to emit log statements from smart contract that can be listened to by external parties
 	event GreetingChange(
@@ -32,25 +30,15 @@ contract YourContract2 {
 		uint256 value
 	);
 
-	event FarewellChange(
-		address indexed farewellSetter,
-		string newFarewell,
-		bool premium,
-		uint256 value
-	);
-
-	// Constructor: Called once on contract deployment
+	// Upgradeable contracts need to use initializer in place of constructor
+	// Assign varible values inside of the initializer
 	// Check packages/hardhat/deploy/00_deploy_your_contract.ts
-	constructor(address _owner) {
-		owner = _owner;
-	}
+	function initialize(address _owner) public initializer {
+		greeting = "Building Unstoppable Apps!!!";
+		premium = false;
+		totalCounter = 0;
 
-	// Modifier: used to define a set of rules that must be met before or after a function is executed
-	// Check the withdraw() function
-	modifier isOwner() {
-		// msg.sender: predefined variable that represents address of the account that called the current function
-		require(msg.sender == owner, "Not the Owner");
-		_;
+		__Ownable_init(_owner);
 	}
 
 	/**
@@ -82,12 +70,15 @@ contract YourContract2 {
 		emit GreetingChange(msg.sender, _newGreeting, msg.value > 0, 0);
 	}
 
+	// We're overriding this function that is inherited from UUPSUpgradeable and adding the onlyOwner modifier
+	function _authorizeUpgrade(address) internal override onlyOwner {}
+
 	/**
 	 * Function that allows the owner to withdraw all the Ether in the contract
-	 * The function can only be called by the owner of the contract as defined by the isOwner modifier
+	 * The function can only be called by the owner of the contract as defined by the onlyOwner modifier inherited from OwnableUpgradeable
 	 */
-	function withdraw() public isOwner {
-		(bool success, ) = owner.call{ value: address(this).balance }("");
+	function withdraw() public onlyOwner {
+		(bool success, ) = owner().call{ value: address(this).balance }("");
 		require(success, "Failed to send Ether");
 	}
 
@@ -95,29 +86,4 @@ contract YourContract2 {
 	 * Function that allows the contract to receive ETH
 	 */
 	receive() external payable {}
-
-	function setFarewell(string memory _newFarewell) public payable {
-		// Print data to the hardhat chain console. Remove when deploying to a live network.
-		console.log(
-			"Setting new farwell '%s' from %s",
-			_newFarewell,
-			msg.sender
-		);
-
-		// Change state variables
-		farewell = _newFarewell;
-		totalCounterFarewell += 1;
-		userFarewellCounter[msg.sender] += 1;
-
-		// msg.value: built-in global variable that represents the amount of ether sent with the transaction
-		if (msg.value > 0) {
-			premium = true;
-		} else {
-			premium = false;
-		}
-
-		// emit: keyword used to trigger an event
-		emit FarewellChange(msg.sender, _newFarewell, msg.value > 0, 0);
-	}
-	
 }

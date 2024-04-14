@@ -70,6 +70,7 @@ contract YourContract is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 		emit GreetingChange(msg.sender, _newGreeting, msg.value > 0, 0);
 	}
 
+	// We're overriding this function that is inherited from UUPSUpgradeable and adding the onlyOwner modifier
 	function _authorizeUpgrade(address) internal override onlyOwner {}
 
 	/**

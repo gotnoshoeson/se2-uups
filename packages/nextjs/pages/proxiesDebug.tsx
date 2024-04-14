@@ -22,16 +22,13 @@ const ClonesDebug: NextPage = () => {
   const factory = deployedContracts[chain.id].Factory;
   const yourContract = deployedContracts[chain.id].YourContract;
 
-  // Uncomment the two line below after step3
-  // const yourTransparentUpgradeableProxy = deployedContracts[chain.id].YourTransparentUpgradeableProxy;
+  // Uncomment the line below after step3
   // const yourContractUpgrade = deployedContracts[chain.id].YourContract2;
 
 
   // Array of contract addresses from contractRead
   const [proxyContracts, setProxyContracts] = useState<string[]>();
   const [proxyContractData, setProxyContractData] = useState<object[]>();
-  // Uncomment the line below after step3
-  // const [proxyTransparentContractData, setProxyTransparentContractData] = useState();
 
   const [selectedContract, setSelectedContract] = useLocalStorage(
     selectedContractStorageKey,
@@ -79,25 +76,6 @@ const ClonesDebug: NextPage = () => {
     setProxyContractData(dataArray);
   }, [proxyContracts]);
 
-  // Uncomment the following useEffect after step3
-  // Creates transparent data for each proxy deployed by the Factory contract
-  // Contract data is then used for ContractProxyUI
-  /* useEffect(() => {
-    const dataArray = [];
-
-    const iterate = () => {
-      for (let index = 0; index < proxyContracts.length; index++) {
-        const data = Object.create(yourTransparentUpgradeableProxy);
-        data.address = proxyContracts[index];
-        dataArray.push(data);
-      }
-    };
-
-    if (proxyContracts?.length > 0)
-      iterate();
-      setProxyTransparentContractData(dataArray);
-  }, [proxyContracts]); */
-
 
   return (
     <>
@@ -144,14 +122,6 @@ const ClonesDebug: NextPage = () => {
                 deployedContractData={data}
               />
             ))}
-            {/* Uncomment the following code after step3 */}
-            {/* {proxyTransparentContractData?.map(data => (
-              <ContractProxyUI
-                key={data.address}
-                className={data.address === selectedContract ? "" : "hidden"}
-                deployedContractData={data}
-              />
-            ))} */}
           </>
         )}
       </div>
