@@ -83,8 +83,13 @@ We're now using the ABI for YourContract2 but we haven't upgraded the contract y
 
 6. Now try to make a call to our new function 'setFarewell'. Keep in mind, we're sending the call to the same address that existed before. Can you call 'setFarewell' on a different proxy that hasn't been upgraded?
 
-7. When you're ready to terminate the upgradeable functionality of your smart contract, deploy an implementation contract and initialize with '0x0000000000000000000000000000000000000000' (the Zero Address). Now everyone will know that your smart contract is no longer upgradeable.
+7. When you're ready to terminate the upgradeable functionality of your smart contract, deploy an implementation contract and initialize it with '0x0000000000000000000000000000000000000000' (the Zero Address). Now everyone will know that your smart contract is no longer upgradeable.
 
+## Subgraphs
+
+Now let's deploy a subgraph so that we can efficiently read data from the blockchain. "But I'll have to deploy a subgraph for each time I deploy a proxy, right?" Wrong. Thanks to templating with The Graph, we can deploy one subgraph that will index events from our Factory contract AND events emitted by all of the proxies that our Factory contract deploys on chain. Amazing!
+
+This portion coming soon...
 
 If you're looking for a proxy pattern that upgrades all the proxy contracts with one transaction, check out the [Upgradeable Beacon Proxy pattern](https://blog.openzeppelin.com/blog/the-state-of-smart-contract-upgrades#beacons). A similar build will be coming soon for the Beacon Proxy pattern.
 
@@ -96,7 +101,7 @@ Thanks for journeying with me. Keep Buidling!
 <h4 align="center">
   <a href="https://docs.scaffoldeth.io">Documentation</a> |
   <a href="https://scaffoldeth.io">Website</a> |
-  <a href="https://blog.openzeppelin.com/the-transparent-proxy-pattern">Open Zeppelin Blog - The transparent proxy pattern</a>
+  <a href="https://eips.ethereum.org/EIPS/eip-1822">Ethereum EIP-1882 - UUPS</a>
 </h4>
 
 
